@@ -2,7 +2,10 @@
     "name": "rp-fmt",
     "version": "0.0.1",
     "license": "MIT",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
     "scripts": {
+        "build": "tsc",
         "lint": "eslint --ext .ts --fix .",
         "format": "prettier --write ."
     },
@@ -12,5 +15,8 @@
         "eslint": "^8.46.0",
         "prettier": "^3.0.0",
         "typescript": "^5.1.6"
-    }
+    },
+    "files": [
+        "dist/**/*"
+    ]
 }
