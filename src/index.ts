@@ -1,64 +1,101 @@
-type Currency = "Rp" | "IDR";
+type CurrencyType = "Rp" | "IDR";
 
-interface IDefaultSettings {
-    currency: Currency;
-    dot: string;
-    formal: boolean;
-    removeZeroDecimals: boolean;
-    useUnit: boolean;
+interface CurrencyFormattingSettings {
+    currencyType: CurrencyType;
+    decimalPlaces: number;
+    decimalSeparator: string;
+    includeCurrencyUnit: boolean;
+    omitZeroDecimals: boolean;
+    replaceZeroDecimals: boolean;
+    thousandSeparator: string;
+    useFormalNotation: boolean;
 }
 
-const defaultSettings: IDefaultSettings = {
-    currency: "Rp",
-    dot: ".",
-    formal: true,
-    removeZeroDecimals: false,
-    useUnit: false,
+const defaultCurrencyFormattingSettings: CurrencyFormattingSettings = {
+    currencyType: "Rp",
+    decimalPlaces: 2,
+    decimalSeparator: ",",
+    includeCurrencyUnit: false,
+    omitZeroDecimals: false,
+    replaceZeroDecimals: false,
+    thousandSeparator: ".",
+    useFormalNotation: true,
 };
 
-function dotFormatter(nominal: string, settings: IDefaultSettings): string {
-    const value = nominal.split(".");
-    const size = value[0].length;
-    const result: string[] = [];
-
-    for (let i = size - 1, count = 0; i >= 0; i--, count++) {
-        if (count === 3) {
-            result.push(settings.dot);
-            count = 0;
-        }
-        result.push(value[0][i]);
+function formatComma(
+    value: string,
+    settings: CurrencyFormattingSettings,
+): string {
+    if (!value) {
+        return settings.replaceZeroDecimals ? "-" : "00";
     }
 
-    return result.reverse().join("");
+    const diffLength = settings.decimalPlaces - value.length;
+
+    if (diffLength > 0) {
+        return value + "0".repeat(diffLength);
+    } else if (diffLength < 0) {
+        return value.slice(0, diffLength);
+    }
+
+    return value;
 }
 
-function currencyFormatter(
-    nominal: string,
-    settings: IDefaultSettings,
+function formatThousand(
+    value: string,
+    settings: CurrencyFormattingSettings,
 ): string {
-    if (settings.currency === "Rp") {
-        nominal = settings.formal ? "Rp" + nominal : "Rp " + nominal;
-    } else if (settings.currency === "IDR") {
-        nominal = settings.formal ? nominal + " IDR" : "IDR " + nominal;
+    const parts = value.split(".");
+    const integerPart = parts[0];
+    const integerPartLength = integerPart.length;
+    const formattedParts: string[] = [];
+
+    for (let i = integerPartLength - 1, count = 0; i >= 0; i--, count++) {
+        if (count === 3) {
+            formattedParts.push(settings.thousandSeparator);
+            count = 0;
+        }
+        formattedParts.push(integerPart[i]);
     }
 
-    return nominal;
+    const formattedIntegerPart = formattedParts.reverse().join("");
+    const formattedDecimalPart = formatComma(parts[1], settings);
+
+    if (settings.omitZeroDecimals && !parts[1]) {
+        return formattedIntegerPart;
+    }
+
+    return settings.decimalPlaces > 0
+        ? formattedIntegerPart +
+              settings.decimalSeparator +
+              formattedDecimalPart
+        : formattedIntegerPart;
+}
+
+function formatCurrency(
+    value: string,
+    settings: CurrencyFormattingSettings,
+): string {
+    if (settings.currencyType === "Rp") {
+        value = settings.useFormalNotation ? "Rp" + value : "Rp " + value;
+    } else if (settings.currencyType === "IDR") {
+        value = settings.useFormalNotation ? value + " IDR" : "IDR " + value;
+    }
+
+    return value;
 }
 
 export function RpFmt(
-    nominal: string | number,
-    settings: Partial<IDefaultSettings>,
+    value: string | number,
+    settings?: Partial<CurrencyFormattingSettings>,
 ): string {
-    nominal = typeof nominal !== "string" ? nominal.toString() : nominal;
-    const mergedSettings: IDefaultSettings = {
-        ...defaultSettings,
+    value = typeof value !== "string" ? value.toString() : value;
+    const mergedSettings: CurrencyFormattingSettings = {
+        ...defaultCurrencyFormattingSettings,
         ...settings,
     };
 
-    return mergedSettings.useUnit
-        ? currencyFormatter(nominal, mergedSettings)
-        : currencyFormatter(
-              dotFormatter(nominal, mergedSettings),
-              mergedSettings,
-          );
+    return mergedSettings.includeCurrencyUnit
+        ? formatCurrency(value, mergedSettings)
+        : formatCurrency(formatThousand(value, mergedSettings), mergedSettings);
 }
