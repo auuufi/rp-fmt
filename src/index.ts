@@ -4,22 +4,26 @@ interface CurrencyFormattingSettings {
     currencyType: CurrencyType;
     decimalPlaces: number;
     decimalSeparator: string;
-    includeCurrencyUnit: boolean;
+    formalNotation: boolean;
+    includeCurrencySymbol: boolean;
+    longUnitNames: boolean;
     omitZeroDecimals: boolean;
     replaceZeroDecimals: boolean;
+    spaceBeforeUnit: boolean;
     thousandSeparator: string;
-    useFormalNotation: boolean;
 }
 
 const defaultCurrencyFormattingSettings: CurrencyFormattingSettings = {
     currencyType: "Rp",
     decimalPlaces: 2,
     decimalSeparator: ",",
-    includeCurrencyUnit: false,
+    formalNotation: true,
+    includeCurrencySymbol: false,
+    longUnitNames: false,
     omitZeroDecimals: false,
     replaceZeroDecimals: false,
+    spaceBeforeUnit: false,
     thousandSeparator: ".",
-    useFormalNotation: true,
 };
 
 function formatDecimal(
@@ -71,14 +75,60 @@ function formatThousand(
         : formattedIntegerPart;
 }
 
+function formatUnit(
+    value: string,
+    settings: CurrencyFormattingSettings,
+): string {
+    const unitIndex = Math.ceil(value.length / 3) - 2;
+    const unitNames = settings.longUnitNames
+        ? [
+              "ribu",
+              "juta",
+              "miliar",
+              "triliun",
+              "kuadriliun",
+              "kuintiliun",
+              "sekstiliun",
+              "septiliun",
+              "oktiliun",
+              "noniliun",
+              "desiliun",
+          ]
+        : ["K"];
+
+    if (unitIndex >= 0 && unitIndex <= 3) {
+        let unit = unitNames[unitIndex];
+
+        if (settings.spaceBeforeUnit) {
+            unit = " " + unit;
+        }
+
+        const moduloDigit = value.length % 3;
+        const sliceIndex = moduloDigit === 0 ? 3 : moduloDigit;
+        const beforeDecimal = value.slice(0, sliceIndex);
+        const afterDecimal = value.slice(sliceIndex, settings.decimalPlaces);
+
+        return (
+            beforeDecimal +
+            (unitIndex >= 0 && settings.decimalPlaces > 0
+                ? settings.decimalSeparator
+                : "") +
+            afterDecimal +
+            unit
+        );
+    }
+
+    return formatThousand(value, settings);
+}
+
 function formatCurrency(
     value: string,
     settings: CurrencyFormattingSettings,
 ): string {
     if (settings.currencyType === "Rp") {
-        return settings.useFormalNotation ? "Rp" + value : "Rp " + value;
+        return settings.formalNotation ? "Rp" + value : "Rp " + value;
     } else if (settings.currencyType === "IDR") {
-        return settings.useFormalNotation ? value + " IDR" : "IDR " + value;
+        return settings.formalNotation ? value + " IDR" : "IDR " + value;
     }
 
     return value;
@@ -94,7 +144,7 @@ export function RpFmt(
         ...settings,
     };
 
-    return mergedSettings.includeCurrencyUnit
-        ? formatCurrency(value, mergedSettings)
+    return mergedSettings.includeCurrencySymbol
+        ? formatCurrency(formatUnit(value, mergedSettings), mergedSettings)
         : formatCurrency(formatThousand(value, mergedSettings), mergedSettings);
 }
