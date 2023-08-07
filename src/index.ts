@@ -22,7 +22,7 @@ const defaultCurrencyFormattingSettings: CurrencyFormattingSettings = {
     useFormalNotation: true,
 };
 
-function formatComma(
+function formatDecimal(
     value: string,
     settings: CurrencyFormattingSettings,
 ): string {
@@ -45,23 +45,22 @@ function formatThousand(
     value: string,
     settings: CurrencyFormattingSettings,
 ): string {
-    const parts = value.split(".");
-    const integerPart = parts[0];
-    const integerPartLength = integerPart.length;
-    const formattedParts: string[] = [];
+    const part = value.split(".");
+    const integerPart = part[0];
+    const formattedPart: string[] = [];
 
-    for (let i = integerPartLength - 1, count = 0; i >= 0; i--, count++) {
+    for (let i = integerPart.length - 1, count = 0; i >= 0; i--, count++) {
         if (count === 3) {
-            formattedParts.push(settings.thousandSeparator);
+            formattedPart.push(settings.thousandSeparator);
             count = 0;
         }
-        formattedParts.push(integerPart[i]);
+        formattedPart.push(integerPart[i]);
     }
 
-    const formattedIntegerPart = formattedParts.reverse().join("");
-    const formattedDecimalPart = formatComma(parts[1], settings);
+    const formattedIntegerPart = formattedPart.reverse().join("");
+    const formattedDecimalPart = formatDecimal(part[1], settings);
 
-    if (settings.omitZeroDecimals && !parts[1]) {
+    if (settings.omitZeroDecimals && !part[1]) {
         return formattedIntegerPart;
     }
 
@@ -77,9 +76,9 @@ function formatCurrency(
     settings: CurrencyFormattingSettings,
 ): string {
     if (settings.currencyType === "Rp") {
-        value = settings.useFormalNotation ? "Rp" + value : "Rp " + value;
+        return settings.useFormalNotation ? "Rp" + value : "Rp " + value;
     } else if (settings.currencyType === "IDR") {
-        value = settings.useFormalNotation ? value + " IDR" : "IDR " + value;
+        return settings.useFormalNotation ? value + " IDR" : "IDR " + value;
     }
 
     return value;
