@@ -49,22 +49,21 @@ function formatThousandPart(
     value: string,
     settings: CurrencyFormattingSettings,
 ): string {
-    const part = value.split(".");
-    const integerPart = part[0];
+    const [intPart, decPart] = value.split(".");
     const formattedPart: string[] = [];
 
-    for (let i = integerPart.length - 1, count = 0; i >= 0; i--, count++) {
+    for (let i = intPart.length - 1, count = 0; i >= 0; i--, count++) {
         if (count === 3) {
             formattedPart.push(settings.thousandSeparator);
             count = 0;
         }
-        formattedPart.push(integerPart[i]);
+        formattedPart.push(intPart[i]);
     }
 
     const formattedIntPart = formattedPart.reverse().join("");
-    const formattedDecPart = formatDecimalPart(part[1], settings);
+    const formattedDecPart = formatDecimalPart(decPart, settings);
 
-    if (settings.omitZeroDecimals && !part[1]) {
+    if (settings.omitZeroDecimals && !decPart) {
         return formattedIntPart;
     }
 
