@@ -1,4 +1,4 @@
-type CurrencyType = "Rp" | "IDR";
+type CurrencyType = "Rp" | "IDR" | null;
 
 interface CurrencyFormattingSettings {
     currencyType: CurrencyType;
@@ -26,26 +26,26 @@ const defaultCurrencyFormattingSettings: CurrencyFormattingSettings = {
     thousandSeparator: ".",
 };
 
-function formatDecimal(
+function formatDecimalPart(
     value: string,
     settings: CurrencyFormattingSettings,
 ): string {
     if (!value) {
-        return settings.replaceZeroDecimals ? "-" : "00";
+        value = settings.replaceZeroDecimals ? "-" : "00";
     }
 
-    const diffLength = settings.decimalPlaces - value.length;
+    const missingDecimals = settings.decimalPlaces - value.length;
 
-    if (diffLength > 0) {
-        return value + "0".repeat(diffLength);
-    } else if (diffLength < 0) {
-        return value.slice(0, diffLength);
+    if (missingDecimals > 0) {
+        return value + "0".repeat(missingDecimals);
+    } else if (missingDecimals < 0) {
+        return value.slice(0, missingDecimals);
     }
 
     return value;
 }
 
-function formatThousand(
+function formatThousandPart(
     value: string,
     settings: CurrencyFormattingSettings,
 ): string {
@@ -61,40 +61,26 @@ function formatThousand(
         formattedPart.push(integerPart[i]);
     }
 
-    const formattedIntegerPart = formattedPart.reverse().join("");
-    const formattedDecimalPart = formatDecimal(part[1], settings);
+    const formattedIntPart = formattedPart.reverse().join("");
+    const formattedDecPart = formatDecimalPart(part[1], settings);
 
     if (settings.omitZeroDecimals && !part[1]) {
-        return formattedIntegerPart;
+        return formattedIntPart;
     }
 
     return settings.decimalPlaces > 0
-        ? formattedIntegerPart +
-              settings.decimalSeparator +
-              formattedDecimalPart
-        : formattedIntegerPart;
+        ? formattedIntPart + settings.decimalSeparator + formattedDecPart
+        : formattedIntPart;
 }
 
-function formatUnit(
+function formatUnitName(
     value: string,
     settings: CurrencyFormattingSettings,
 ): string {
     const unitIndex = Math.ceil(value.length / 3) - 2;
     const unitNames = settings.longUnitNames
-        ? [
-              "ribu",
-              "juta",
-              "miliar",
-              "triliun",
-              "kuadriliun",
-              "kuintiliun",
-              "sekstiliun",
-              "septiliun",
-              "oktiliun",
-              "noniliun",
-              "desiliun",
-          ]
-        : ["K"];
+        ? ["ribu", "juta", "miliar", "triliun"]
+        : ["K", "M", "B", "T"];
 
     if (unitIndex >= 0 && unitIndex <= 3) {
         let unit = unitNames[unitIndex];
@@ -106,7 +92,10 @@ function formatUnit(
         const moduloDigit = value.length % 3;
         const sliceIndex = moduloDigit === 0 ? 3 : moduloDigit;
         const beforeDecimal = value.slice(0, sliceIndex);
-        const afterDecimal = value.slice(sliceIndex, settings.decimalPlaces);
+        const afterDecimal = value.slice(
+            sliceIndex,
+            sliceIndex + settings.decimalPlaces,
+        );
 
         return (
             beforeDecimal +
@@ -118,10 +107,10 @@ function formatUnit(
         );
     }
 
-    return formatThousand(value, settings);
+    return formatThousandPart(value, settings);
 }
 
-function formatCurrency(
+function formatCurrencyValue(
     value: string,
     settings: CurrencyFormattingSettings,
 ): string {
@@ -134,7 +123,7 @@ function formatCurrency(
     return value;
 }
 
-export function RpFmt(
+export default function RpFmt(
     value: string | number,
     settings?: Partial<CurrencyFormattingSettings>,
 ): string {
@@ -145,6 +134,12 @@ export function RpFmt(
     };
 
     return mergedSettings.includeCurrencySymbol
-        ? formatCurrency(formatUnit(value, mergedSettings), mergedSettings)
-        : formatCurrency(formatThousand(value, mergedSettings), mergedSettings);
+        ? formatCurrencyValue(
+              formatUnitName(value, mergedSettings),
+              mergedSettings,
+          )
+        : formatCurrencyValue(
+              formatThousandPart(value, mergedSettings),
+              mergedSettings,
+          );
 }
