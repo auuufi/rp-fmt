@@ -1,10 +1,24 @@
 {
     "name": "rp-fmt",
     "version": "0.0.1",
+    "description": "Simple utility library for formatting rupiah currency",
+    "keywords": [
+        "currency",
+        "formatting",
+        "rp",
+        "rupiah",
+        "typescript",
+        "utility"
+    ],
     "license": "MIT",
+    "author": "Taufiq",
     "main": "dist/index.js",
     "module": "dist/index.mjs",
     "types": "dist/index.d.ts",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/onesyx/rp-fmt.git"
+    },
     "scripts": {
         "build": "tsup src/index.ts --dts --format esm,cjs",
         "test": "jest",
@@ -21,8 +35,5 @@
         "ts-jest": "^29.1.1",
         "tsup": "^7.2.0",
         "typescript": "^5.1.6"
-    },
-    "files": [
-        "dist/**/*"
-    ]
+    }
 }
