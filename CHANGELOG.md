@@ -4,4 +4,4 @@
 
 ### Minor Changes
 
--   Initial Release
+- Initial Release

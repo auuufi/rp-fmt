@@ -12,6 +12,9 @@
     ],
     "license": "MIT",
     "author": "Taufiq",
+    "files": [
+        "dist/**/*"
+    ],
     "main": "dist/index.js",
     "module": "dist/index.mjs",
     "types": "dist/index.d.ts",
