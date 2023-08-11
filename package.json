@@ -1,6 +1,6 @@
 {
     "name": "rp-fmt",
-    "version": "0.0.1",
+    "version": "0.1.0",
     "description": "Simple utility library for formatting rupiah currency",
     "keywords": [
         "currency",
@@ -23,9 +23,11 @@
         "build": "tsup src/index.ts --dts --format esm,cjs",
         "test": "jest",
         "lint": "tsc && eslint --ext .ts .",
-        "format": "prettier --write ."
+        "format": "prettier --write .",
+        "release": "yarn build && changeset publish"
     },
     "devDependencies": {
+        "@changesets/cli": "^2.26.2",
         "@types/jest": "^29.5.3",
         "@typescript-eslint/eslint-plugin": "^6.2.0",
         "@typescript-eslint/parser": "^6.2.0",
