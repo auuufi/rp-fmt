@@ -1,13 +1,8 @@
-import { formatThousandPart, formatUnitName } from "./formatting";
-import {
-    CurrencyFormattingSettings,
-    defaultCurrencyFormattingSettings,
-} from "./settings";
+import { thousand, unit } from "./formatting";
+import { defaultCurrencyFormattingSettings } from "./settings";
+import { CurrencyFormattingSettings, Fmt } from "./types";
 
-function formatCurrencyValue(
-    value: string,
-    settings: CurrencyFormattingSettings,
-): string {
+function currency({ value, settings }: Fmt): string {
     if (settings.currencyType === "Rp") {
         return settings.formalNotation ? "Rp" + value : "Rp " + value;
     } else if (settings.currencyType === "IDR") {
@@ -22,18 +17,18 @@ export default function RpFmt(
     settings?: Partial<CurrencyFormattingSettings>,
 ): string {
     value = typeof value !== "string" ? value.toString() : value;
-    const mergedSettings: CurrencyFormattingSettings = {
+    const mergeSettings: CurrencyFormattingSettings = {
         ...defaultCurrencyFormattingSettings,
         ...settings,
     };
 
-    return mergedSettings.includeCurrencySymbol
-        ? formatCurrencyValue(
-              formatUnitName(value, mergedSettings),
-              mergedSettings,
-          )
-        : formatCurrencyValue(
-              formatThousandPart(value, mergedSettings),
-              mergedSettings,
-          );
+    return mergeSettings.includeCurrencySymbol
+        ? currency({
+              value: unit({ value, settings: mergeSettings }),
+              settings: mergeSettings,
+          })
+        : currency({
+              value: thousand({ value, settings: mergeSettings }),
+              settings: mergeSettings,
+          });
 }

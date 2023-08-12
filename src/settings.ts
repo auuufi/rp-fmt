@@ -1,17 +1,4 @@
-export type CurrencyType = "Rp" | "IDR" | null;
-
-export interface CurrencyFormattingSettings {
-    currencyType: CurrencyType;
-    decimalPlaces: number;
-    decimalSeparator: string;
-    formalNotation: boolean;
-    includeCurrencySymbol: boolean;
-    longUnitNames: boolean;
-    omitZeroDecimals: boolean;
-    replaceZeroDecimals: boolean;
-    spaceBeforeUnit: boolean;
-    thousandSeparator: string;
-}
+import { CurrencyFormattingSettings } from "./types";
 
 export const defaultCurrencyFormattingSettings: CurrencyFormattingSettings = {
     currencyType: "Rp",

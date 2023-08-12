@@ -1,28 +1,22 @@
-import { CurrencyFormattingSettings } from "./settings";
+import { Fmt } from "./types";
 
-export function formatDecimalPart(
-    value: string,
-    settings: CurrencyFormattingSettings,
-): string {
+function decimal({ value, settings }: Fmt): string {
     if (!value) {
         value = settings.replaceZeroDecimals ? "-" : "00";
     }
 
-    const missingDecimals = settings.decimalPlaces - value.length;
+    const valueLength = settings.decimalPlaces - value.length;
 
-    if (missingDecimals > 0) {
-        return value + "0".repeat(missingDecimals);
-    } else if (missingDecimals < 0) {
-        return value.slice(0, missingDecimals);
+    if (valueLength > 0) {
+        return value + "0".repeat(valueLength);
+    } else if (valueLength < 0) {
+        return value.slice(0, valueLength);
     }
 
     return value;
 }
 
-export function formatThousandPart(
-    value: string,
-    settings: CurrencyFormattingSettings,
-): string {
+export function thousand({ value, settings }: Fmt): string {
     const [intPart, decPart] = value.split(".");
     const formattedPart: string[] = [];
 
@@ -35,7 +29,10 @@ export function formatThousandPart(
     }
 
     const formattedIntPart = formattedPart.reverse().join("");
-    const formattedDecPart = formatDecimalPart(decPart, settings);
+    const formattedDecPart = decimal({
+        value: decPart,
+        settings,
+    });
 
     if (settings.omitZeroDecimals && !decPart) {
         return formattedIntPart;
@@ -46,20 +43,17 @@ export function formatThousandPart(
         : formattedIntPart;
 }
 
-export function formatUnitName(
-    value: string,
-    settings: CurrencyFormattingSettings,
-): string {
+export function unit({ value, settings }: Fmt): string {
     const unitIndex = Math.ceil(value.length / 3) - 2;
     const unitNames = settings.longUnitNames
         ? ["ribu", "juta", "miliar", "triliun"]
         : ["K", "M", "B", "T"];
 
     if (unitIndex >= 0 && unitIndex <= 3) {
-        let unit = unitNames[unitIndex];
+        let units = unitNames[unitIndex];
 
         if (settings.spaceBeforeUnit) {
-            unit = " " + unit;
+            units = " " + units;
         }
 
         const moduloDigit = value.length % 3;
@@ -76,9 +70,9 @@ export function formatUnitName(
                 ? settings.decimalSeparator
                 : "") +
             afterDecimal +
-            unit
+            units
         );
     }
 
-    return formatThousandPart(value, settings);
+    return thousand({ value, settings });
 }
