@@ -1,19 +1,19 @@
 export type CurrencyType = "Rp" | "IDR" | null;
 
-export interface CurrencyFormattingSettings {
-    currencyType: CurrencyType;
-    decimalPlaces: number;
-    decimalSeparator: string;
-    formalNotation: boolean;
-    includeCurrencySymbol: boolean;
-    longUnitNames: boolean;
-    omitZeroDecimals: boolean;
-    replaceZeroDecimals: boolean;
+export interface CurrencyFormatSettings {
+    currency: CurrencyType;
+    decimalSep: string;
+    decimals: number;
+    formal: boolean;
+    longUnits: boolean;
+    omitZero: boolean;
+    replaceZero: boolean;
     spaceBeforeUnit: boolean;
-    thousandSeparator: string;
+    symbol: boolean;
+    thousandSep: string;
 }
 
 export interface Fmt {
     value: string;
-    settings: CurrencyFormattingSettings;
+    settings: CurrencyFormatSettings;
 }

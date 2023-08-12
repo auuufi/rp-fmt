@@ -2,10 +2,10 @@ import { Fmt } from "./types";
 
 function decimal({ value, settings }: Fmt): string {
     if (!value) {
-        value = settings.replaceZeroDecimals ? "-" : "00";
+        value = settings.replaceZero ? "-" : "00";
     }
 
-    const valueLength = settings.decimalPlaces - value.length;
+    const valueLength = settings.decimals - value.length;
 
     if (valueLength > 0) {
         return value + "0".repeat(valueLength);
@@ -22,7 +22,7 @@ export function thousand({ value, settings }: Fmt): string {
 
     for (let i = intPart.length - 1, count = 0; i >= 0; i--, count++) {
         if (count === 3) {
-            formattedPart.push(settings.thousandSeparator);
+            formattedPart.push(settings.thousandSep);
             count = 0;
         }
         formattedPart.push(intPart[i]);
@@ -34,18 +34,18 @@ export function thousand({ value, settings }: Fmt): string {
         settings,
     });
 
-    if (settings.omitZeroDecimals && !decPart) {
+    if (settings.omitZero && !decPart) {
         return formattedIntPart;
     }
 
-    return settings.decimalPlaces > 0
-        ? formattedIntPart + settings.decimalSeparator + formattedDecPart
+    return settings.decimals > 0
+        ? formattedIntPart + settings.decimalSep + formattedDecPart
         : formattedIntPart;
 }
 
 export function unit({ value, settings }: Fmt): string {
     const unitLength = Math.ceil(value.length / 3) - 2;
-    const unitLabels = settings.longUnitNames
+    const unitLabels = settings.longUnits
         ? ["ribu", "juta", "miliar", "triliun"]
         : ["K", "M", "B", "T"];
 
@@ -59,13 +59,13 @@ export function unit({ value, settings }: Fmt): string {
         const remainingDigits = value.length % 3;
         const sliceLength = remainingDigits === 0 ? 3 : remainingDigits;
         const intPart = value.slice(0, sliceLength);
-        const sep = settings.decimalPlaces > 0 ? settings.decimalSeparator : "";
+        const sepPart = settings.decimals > 0 ? settings.decimalSep : "";
         const decPart = value.slice(
             sliceLength,
-            sliceLength + settings.decimalPlaces,
+            sliceLength + settings.decimals,
         );
 
-        return intPart + sep + decPart + units;
+        return intPart + sepPart + decPart + units;
     }
 
     return thousand({ value, settings });

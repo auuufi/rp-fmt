@@ -1,14 +1,14 @@
-import { CurrencyFormattingSettings } from "./types";
+import { CurrencyFormatSettings } from "./types";
 
-export const defaultCurrencyFormattingSettings: CurrencyFormattingSettings = {
-    currencyType: "Rp",
-    decimalPlaces: 2,
-    decimalSeparator: ",",
-    formalNotation: true,
-    includeCurrencySymbol: false,
-    longUnitNames: false,
-    omitZeroDecimals: false,
-    replaceZeroDecimals: false,
+export const defaultCurrencyFormatSettings: CurrencyFormatSettings = {
+    currency: "Rp",
+    decimalSep: ",",
+    decimals: 2,
+    formal: true,
+    longUnits: false,
+    omitZero: false,
+    replaceZero: false,
     spaceBeforeUnit: false,
-    thousandSeparator: ".",
+    symbol: false,
+    thousandSep: ".",
 };

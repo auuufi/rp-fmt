@@ -1,12 +1,12 @@
 import { thousand, unit } from "./formatting";
-import { defaultCurrencyFormattingSettings } from "./settings";
-import { CurrencyFormattingSettings, Fmt } from "./types";
+import { defaultCurrencyFormatSettings } from "./settings";
+import { CurrencyFormatSettings, Fmt } from "./types";
 
 function currency({ value, settings }: Fmt): string {
-    if (settings.currencyType === "Rp") {
-        return settings.formalNotation ? "Rp" + value : "Rp " + value;
-    } else if (settings.currencyType === "IDR") {
-        return settings.formalNotation ? value + " IDR" : "IDR " + value;
+    if (settings.currency === "Rp") {
+        return settings.formal ? "Rp" + value : "Rp " + value;
+    } else if (settings.currency === "IDR") {
+        return settings.formal ? value + " IDR" : "IDR " + value;
     }
 
     return value;
@@ -14,15 +14,15 @@ function currency({ value, settings }: Fmt): string {
 
 export default function RpFmt(
     value: string | number,
-    settings?: Partial<CurrencyFormattingSettings>,
+    settings?: Partial<CurrencyFormatSettings>,
 ): string {
     value = typeof value !== "string" ? value.toString() : value;
-    const mergeSettings: CurrencyFormattingSettings = {
-        ...defaultCurrencyFormattingSettings,
+    const mergeSettings = {
+        ...defaultCurrencyFormatSettings,
         ...settings,
     };
 
-    return mergeSettings.includeCurrencySymbol
+    return mergeSettings.symbol
         ? currency({
               value: unit({ value, settings: mergeSettings }),
               settings: mergeSettings,
