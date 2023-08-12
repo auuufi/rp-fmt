@@ -44,34 +44,28 @@ export function thousand({ value, settings }: Fmt): string {
 }
 
 export function unit({ value, settings }: Fmt): string {
-    const unitIndex = Math.ceil(value.length / 3) - 2;
-    const unitNames = settings.longUnitNames
+    const unitLength = Math.ceil(value.length / 3) - 2;
+    const unitLabels = settings.longUnitNames
         ? ["ribu", "juta", "miliar", "triliun"]
         : ["K", "M", "B", "T"];
 
-    if (unitIndex >= 0 && unitIndex <= 3) {
-        let units = unitNames[unitIndex];
+    if (unitLength >= 0 && unitLength <= 3) {
+        let units = unitLabels[unitLength];
 
         if (settings.spaceBeforeUnit) {
             units = " " + units;
         }
 
-        const moduloDigit = value.length % 3;
-        const sliceIndex = moduloDigit === 0 ? 3 : moduloDigit;
-        const beforeDecimal = value.slice(0, sliceIndex);
-        const afterDecimal = value.slice(
-            sliceIndex,
-            sliceIndex + settings.decimalPlaces,
+        const remainingDigits = value.length % 3;
+        const sliceLength = remainingDigits === 0 ? 3 : remainingDigits;
+        const intPart = value.slice(0, sliceLength);
+        const sep = settings.decimalPlaces > 0 ? settings.decimalSeparator : "";
+        const decPart = value.slice(
+            sliceLength,
+            sliceLength + settings.decimalPlaces,
         );
 
-        return (
-            beforeDecimal +
-            (unitIndex >= 0 && settings.decimalPlaces > 0
-                ? settings.decimalSeparator
-                : "") +
-            afterDecimal +
-            units
-        );
+        return intPart + sep + decPart + units;
     }
 
     return thousand({ value, settings });
